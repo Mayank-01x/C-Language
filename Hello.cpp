@@ -1,26 +1,77 @@
-# include<stdio.h>
-#include<conio.h> 
-int max(int a, int b) { return (a > b)? a : b; } 
-// Returns the maximum value that can be put in a knapsack of capacity W 
-int knapSack(int W, int wt[], int val[], int n) 
-{ 
-   // Base Case 
-   if (n == 0 || W == 0) 
-       return 0; 
-/* If weight of the nth item is more than Knapsack capacity W, then 
-this item cannot be included in the optimal solution */
-   if (wt[n-1] > W) 
-       return knapSack(W, wt, val, n-1); 
-/*Return the maximum of two cases:(1) nth item included (2) not included */
-   else return max( val[n-1] + knapSack(W-wt[n-1], wt, val, n-1), 
-                    knapSack(W, wt, val, n-1)); 
-} 
-int main() 
-{ 
-    int val[] = {3,4,5,6}; 
-    int wt[] = {2,3,4,5}; 
-    int  W = 5; 
-    int n = 4; 
-    printf(" Maximum vlaue we can put into knapsack is %d", knapSack(W, wt, val, n)); 
+#include <iostream>
+#include <list>
+#include <stack>
+using namespace std;
 
+class Graph {
+    int n;  // Number of vertices
+    list<int> *adj;  // Adjacency list
+
+    void topologicalSortUtil(int v, bool visited[], stack<int> &Stack);
+
+public:
+    Graph(int n);  
+    void addEdge(int v, int w);
+    void topoSort();  
+};
+
+// Constructor
+Graph::Graph(int n) {
+    this->n = n;
+    adj = new list<int>[n]; 
+}
+
+// Function to add an edge to the graph
+void Graph::addEdge(int v, int w) {
+    adj[v].push_back(w); 
+}
+
+// DFS function for topological sorting
+void Graph::topologicalSortUtil(int v, bool visited[], stack<int> &Stack) {
+    visited[v] = true;  
+
+    for (int neighbor : adj[v]) {
+        if (!visited[neighbor])
+            topologicalSortUtil(neighbor, visited, Stack);
+    }
+
+    Stack.push(v);
+}
+
+// Function to perform topological sorting
+void Graph::topoSort() {
+    stack<int> Stack;
+    bool *visited = new bool[n];
+
+    for (int i = 0; i < n; i++)
+        visited[i] = false;
+
+    for (int i = 0; i < n; i++)
+        if (!visited[i])
+            topologicalSortUtil(i, visited, Stack);
+
+    // Print the topological order in a single line
+    while (!Stack.empty()) {
+        cout << Stack.top();
+        Stack.pop();
+        if (!Stack.empty()) cout << " ";  // Avoid trailing space
+    }
+    cout << endl;
+
+    delete[] visited;  
+}
+
+// Driver function
+int main() {
+    Graph g(6);
+    g.addEdge(4, 2);
+    g.addEdge(5, 1);
+    g.addEdge(4, 0);
+    g.addEdge(3, 1);
+    g.addEdge(1, 3);
+    g.addEdge(3, 2);
+
+    g.topoSort();  // Output only the topological order
+
+    return 0;
 }
